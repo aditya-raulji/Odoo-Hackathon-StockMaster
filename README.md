@@ -1,6 +1,6 @@
-# Comet IMS - Inventory Management System
+# StockMaster - Inventory Management System
 
-A modern, modular Inventory Management System frontend built with **Next.js 14**, **React 18**, and **Tailwind CSS** featuring a "Comet" UI/UX design style with soft rounded cards, glass gradients, and smooth micro-interactions.
+A modern, modular Inventory Management System frontend built with **Next.js 14**, **React 18**, and **Tailwind CSS** featuring a "StockMaster" UI/UX design style with soft rounded cards, glass gradients, and smooth micro-interactions.
 
 ## 🎯 Features
 
@@ -26,7 +26,7 @@ A modern, modular Inventory Management System frontend built with **Next.js 14**
 ## 📋 Project Structure
 
 ```
-comet-ims/
+StockMaster/
 ├── pages/                      # Next.js pages (routes)
 │   ├── _app.jsx               # App wrapper with providers
 │   ├── index.jsx              # Landing page
