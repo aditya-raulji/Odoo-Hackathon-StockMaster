@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useAuth } from '@lib/auth-context';
 import { Mail, AlertCircle, CheckCircle } from 'lucide-react';
 
 const ForgotPassword = () => {
+  const router = useRouter();
   const { requestOTP, error } = useAuth();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
