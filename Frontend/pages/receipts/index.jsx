@@ -1,33 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '@lib/auth-context';
+import { movementService } from '@lib/services';
 import DataTable from '@components/DataTable';
 import { Plus, Filter } from 'lucide-react';
 
 const Receipts = () => {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-  const [receipts, setReceipts] = useState([
-    {
-      id: 1,
-      refNo: 'REC-001',
-      supplier: 'ABC Supplies',
-      date: '2024-01-15',
-      items: 5,
-      total: 2500,
-      status: 'done',
-    },
-    {
-      id: 2,
-      refNo: 'REC-002',
-      supplier: 'XYZ Corp',
-      date: '2024-01-14',
-      items: 3,
-      total: 1800,
-      status: 'ready',
-    },
-  ]);
+  const [receipts, setReceipts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchReceipts();
+    }
+  }, [isAuthenticated, page]);
+
+  const fetchReceipts = async () => {
+    try {
+      setLoading(true);
+      const response = await movementService.getAll(page, 20, { type: 'receipt' });
+      setReceipts(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch receipts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const columns = [
     { key: 'refNo', label: 'Reference', sortable: true },

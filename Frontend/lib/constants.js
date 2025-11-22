@@ -1,13 +1,13 @@
 export const ROLES = {
-  INVENTORY_MANAGER: 'inventory_manager',
-  WAREHOUSE_STAFF: 'warehouse_staff',
-  STOCK_MASTER: 'stock_master',
+  INVENTORY_MANAGER: 'INVENTORY_MANAGER',
+  WAREHOUSE_STAFF: 'WAREHOUSE_STAFF',
+  STOCK_MASTER: 'STOCKMASTER',
 };
 
 export const ROLE_LABELS = {
-  [ROLES.INVENTORY_MANAGER]: 'Inventory Manager',
-  [ROLES.WAREHOUSE_STAFF]: 'Warehouse Staff',
-  [ROLES.STOCK_MASTER]: 'StockMaster',
+  INVENTORY_MANAGER: 'Inventory Manager',
+  WAREHOUSE_STAFF: 'Warehouse Staff',
+  STOCKMASTER: 'Admin',
 };
 
 export const DOCUMENT_TYPES = {
@@ -51,11 +51,10 @@ export const STATUS_COLORS = {
 };
 
 export const ROLE_PERMISSIONS = {
-  [ROLES.INVENTORY_MANAGER]: [
+  INVENTORY_MANAGER: [
     'view_products',
     'create_products',
     'edit_products',
-    'delete_products',
     'view_receipts',
     'create_receipts',
     'approve_receipts',
@@ -68,10 +67,13 @@ export const ROLE_PERMISSIONS = {
     'create_adjustments',
     'view_counts',
     'create_counts',
+    'view_locations',
     'view_reports',
+    'export_reports',
     'view_audit_log',
+    'view_suppliers',
   ],
-  [ROLES.WAREHOUSE_STAFF]: [
+  WAREHOUSE_STAFF: [
     'view_products',
     'view_receipts',
     'confirm_picks',
@@ -79,9 +81,12 @@ export const ROLE_PERMISSIONS = {
     'view_transfers',
     'perform_transfers',
     'view_counts',
+    'create_counts',
     'update_counts',
+    'view_locations',
+    'view_suppliers',
   ],
-  [ROLES.STOCK_MASTER]: [
+  STOCKMASTER: [
     'view_products',
     'create_products',
     'edit_products',
@@ -98,10 +103,13 @@ export const ROLE_PERMISSIONS = {
     'create_adjustments',
     'view_counts',
     'create_counts',
-    'view_reports',
-    'view_audit_log',
+    'view_locations',
     'manage_locations',
+    'view_reports',
+    'export_reports',
+    'view_audit_log',
     'manage_staff',
+    'view_suppliers',
     'manage_suppliers',
     'manage_settings',
   ],

@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: stockmaster-postgres
+    environment:
+      POSTGRES_USER: stockmaster_user
+      POSTGRES_PASSWORD: stockmaster_password
+      POSTGRES_DB: stockmaster
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stockmaster_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - stockmaster-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stockmaster-backend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://stockmaster_user:stockmaster_password@postgres:5432/stockmaster
+      JWT_SECRET: your-jwt-secret-key-change-in-production
+      REFRESH_TOKEN_SECRET: your-refresh-secret-key-change-in-production
+      SENDER_EMAIL: noreply@stockmaster.com
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+      CORS_ORIGIN: http://localhost:3001
+      LOG_LEVEL: info
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    networks:
+      - stockmaster-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  stockmaster-network:
+    driver: bridge

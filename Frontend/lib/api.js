@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
 
 const axiosInstance = axios.create({
   baseURL: API_BASE,
@@ -21,9 +21,20 @@ axiosInstance.interceptors.request.use((config) => {
 
 // Handle response errors
 axiosInstance.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    // Backend returns { ok: true, data: {...} }
+    // Return the full response object so we can access response.data
+    return response.data;
+  },
   (error) => {
-    const payload = error.response?.data || { error: { message: error.message } };
+    console.error('API Error:', error.response?.data || error.message);
+    const payload = error.response?.data || { 
+      ok: false, 
+      error: { 
+        code: error.response?.status || 500,
+        message: error.message || 'Request failed' 
+      } 
+    };
     throw {
       status: error.response?.status,
       payload,

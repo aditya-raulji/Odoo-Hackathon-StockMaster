@@ -8,12 +8,6 @@ const Home = () => {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
 
-  React.useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/dashboard');
-    }
-  }, [isAuthenticated, router]);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-secondary/5">
       {/* Navigation */}
