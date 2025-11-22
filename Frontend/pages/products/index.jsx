@@ -1,33 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '@lib/auth-context';
+import { productService } from '@lib/services';
 import DataTable from '@components/DataTable';
 import { Plus, Filter } from 'lucide-react';
 
 const Products = () => {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      sku: 'SKU-001',
-      name: 'Laptop Stand',
-      category: 'Office Equipment',
-      quantity: 45,
-      reorderLevel: 10,
-      status: 'in_stock',
-    },
-    {
-      id: 2,
-      sku: 'SKU-002',
-      name: 'Wireless Mouse',
-      category: 'Accessories',
-      quantity: 8,
-      reorderLevel: 20,
-      status: 'low_stock',
-    },
-  ]);
+  const { isAuthenticated, user } = useAuth();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState({});
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchProducts();
+    }
+  }, [isAuthenticated, page, filters]);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await productService.getAll(page, 20, filters);
+      setProducts(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const columns = [
     { key: 'sku', label: 'SKU', sortable: true },
