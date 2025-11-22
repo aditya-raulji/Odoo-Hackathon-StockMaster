@@ -39,19 +39,19 @@ const Layout = ({ children }) => {
     return ROLE_PERMISSIONS[user.role]?.includes(permission) || false;
   };
 
-  const isActive = (path) => router.pathname === path;
+  const isActive = (path) => router.pathname === path || router.pathname.startsWith(path + '/');
 
   const navItems = [
     { label: 'Dashboard', href: '/dashboard', icon: Home, permission: null },
-    { label: 'Products', href: '/products', icon: Package, permission: 'view_products' },
-    { label: 'Receipts', href: '/receipts', icon: Truck, permission: 'view_receipts' },
-    { label: 'Deliveries', href: '/deliveries', icon: Truck, permission: 'view_deliveries' },
-    { label: 'Transfers', href: '/transfers', icon: ArrowRightLeft, permission: 'view_transfers' },
+    { label: 'Products', href: '/products/manage', icon: Package, permission: 'view_products' },
+    { label: 'Receipts', href: '/receipts/manage', icon: Truck, permission: 'view_receipts' },
+    { label: 'Deliveries', href: '/deliveries/manage', icon: Truck, permission: 'view_deliveries' },
+    { label: 'Transfers', href: '/transfers/manage', icon: ArrowRightLeft, permission: 'view_transfers' },
     { label: 'Adjustments', href: '/adjustments', icon: Zap, permission: 'view_adjustments' },
     { label: 'Counts', href: '/counts', icon: BarChart3, permission: 'view_counts' },
-    { label: 'Locations', href: '/locations', icon: MapPin, permission: 'manage_locations' },
-    { label: 'Suppliers', href: '/suppliers', icon: Users, permission: null },
-    { label: 'Staff', href: '/staff', icon: Users, permission: 'manage_staff' },
+    { label: 'Locations', href: '/locations/manage', icon: MapPin, permission: 'view_locations' },
+    { label: 'Suppliers', href: '/suppliers/manage', icon: Users, permission: 'view_suppliers' },
+    { label: 'Staff', href: '/staff/manage', icon: Users, permission: 'manage_staff' },
     { label: 'Reports', href: '/reports', icon: FileText, permission: 'view_reports' },
     { label: 'Audit Log', href: '/audit-log', icon: Clock, permission: 'view_audit_log' },
     { label: 'Help', href: '/help', icon: HelpCircle, permission: null },
@@ -60,6 +60,17 @@ const Layout = ({ children }) => {
   const visibleNavItems = navItems.filter(
     (item) => !item.permission || hasPermission(item.permission)
   );
+
+  // Check if current route requires permission that user doesn't have
+  const currentRouteRequiresPermission = () => {
+    const currentItem = navItems.find(item => 
+      router.pathname === item.href || router.pathname.startsWith(item.href + '/')
+    );
+    if (currentItem && currentItem.permission) {
+      return !hasPermission(currentItem.permission);
+    }
+    return false;
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -178,7 +189,29 @@ const Layout = ({ children }) => {
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto">
-          <div className="p-6">{children}</div>
+          <div className="p-6">
+            {currentRouteRequiresPermission() ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center max-w-md">
+                  <div className="w-16 h-16 bg-danger/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-3xl">🔒</span>
+                  </div>
+                  <h1 className="text-2xl font-bold text-neutral-900 mb-2">Access Denied</h1>
+                  <p className="text-neutral-600 mb-6">
+                    You don't have permission to access this page. Your current role doesn't have the required access level.
+                  </p>
+                  <Link
+                    href="/dashboard"
+                    className="btn btn-primary inline-block"
+                  >
+                    Go to Dashboard
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              children
+            )}
+          </div>
         </main>
       </div>
     </div>

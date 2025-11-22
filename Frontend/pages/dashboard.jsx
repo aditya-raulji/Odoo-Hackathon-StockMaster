@@ -5,14 +5,17 @@ import { useAuth } from '@lib/auth-context';
 import { api } from '@lib/api';
 import KPICard from '@components/KPICard';
 import DataTable from '@components/DataTable';
-import { Package, AlertCircle, Truck, TrendingUp } from 'lucide-react';
+import { Package, AlertCircle, Truck, TrendingUp, Clock, CheckCircle } from 'lucide-react';
 
 const Dashboard = () => {
   const router = useRouter();
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading, user } = useAuth();
   const [kpis, setKpis] = useState(null);
   const [recentMovements, setRecentMovements] = useState([]);
+  const [lowStockAlerts, setLowStockAlerts] = useState([]);
+  const [pendingOperations, setPendingOperations] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -24,44 +27,34 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        // Mock data - replace with actual API calls
-        setKpis({
-          totalProducts: 1243,
-          lowStockItems: 47,
-          outOfStock: 12,
-          pendingReceipts: 8,
-          pendingDeliveries: 15,
-          internalTransfers: 3,
-        });
+        setError(null);
 
-        setRecentMovements([
-          {
-            id: 1,
-            refNo: 'REC-001',
-            type: 'receipt',
-            status: 'done',
-            date: '2024-01-15',
-            items: 5,
-          },
-          {
-            id: 2,
-            refNo: 'DEL-042',
-            type: 'delivery',
-            status: 'ready',
-            date: '2024-01-14',
-            items: 3,
-          },
-          {
-            id: 3,
-            refNo: 'TRF-018',
-            type: 'transfer',
-            status: 'waiting',
-            date: '2024-01-14',
-            items: 2,
-          },
-        ]);
+        // Fetch KPIs
+        const kpisResponse = await api.get('/dashboard/kpis');
+        if (kpisResponse.data) {
+          setKpis(kpisResponse.data);
+        }
+
+        // Fetch recent movements
+        const movementsResponse = await api.get('/dashboard/recent-movements?limit=10');
+        if (movementsResponse.data) {
+          setRecentMovements(movementsResponse.data);
+        }
+
+        // Fetch low stock alerts
+        const alertsResponse = await api.get('/dashboard/low-stock-alerts');
+        if (alertsResponse.data) {
+          setLowStockAlerts(alertsResponse.data.slice(0, 5));
+        }
+
+        // Fetch pending operations
+        const operationsResponse = await api.get('/dashboard/pending-operations');
+        if (operationsResponse.data) {
+          setPendingOperations(operationsResponse.data);
+        }
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
+        setError('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
@@ -69,6 +62,9 @@ const Dashboard = () => {
 
     if (isAuthenticated) {
       fetchDashboardData();
+      // Refresh data every 30 seconds
+      const interval = setInterval(fetchDashboardData, 30000);
+      return () => clearInterval(interval);
     }
   }, [isAuthenticated]);
 
