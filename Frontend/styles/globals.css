@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  @apply transition-colors duration-200;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-neutral-50 text-neutral-900;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-neutral-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-neutral-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-neutral-400;
+}
+
+/* Glass morphism effect */
+.glass {
+  @apply bg-white/30 backdrop-blur-md border border-white/20;
+}
+
+/* Comet card style */
+.card {
+  @apply bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300;
+}
+
+.card-lg {
+  @apply bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300;
+}
+
+/* Button base styles */
+.btn {
+  @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-primary {
+  @apply btn bg-primary text-white hover:bg-primary-dark focus:ring-primary;
+}
+
+.btn-secondary {
+  @apply btn bg-secondary text-white hover:bg-secondary/90 focus:ring-secondary;
+}
+
+.btn-outline {
+  @apply btn border-2 border-neutral-300 text-neutral-700 hover:bg-neutral-50 focus:ring-neutral-300;
+}
+
+.btn-ghost {
+  @apply btn text-neutral-600 hover:bg-neutral-100 focus:ring-neutral-300;
+}
+
+.btn-danger {
+  @apply btn bg-danger text-white hover:bg-danger/90 focus:ring-danger;
+}
+
+.btn-sm {
+  @apply px-3 py-1 text-sm;
+}
+
+.btn-lg {
+  @apply px-6 py-3 text-lg;
+}
+
+/* Input styles */
+.input {
+  @apply w-full px-4 py-2 rounded-lg border border-neutral-300 bg-white text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
+}
+
+.input-error {
+  @apply border-danger focus:ring-danger;
+}
+
+/* Badge styles */
+.badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.badge-primary {
+  @apply badge bg-primary/10 text-primary;
+}
+
+.badge-secondary {
+  @apply badge bg-secondary/10 text-secondary;
+}
+
+.badge-danger {
+  @apply badge bg-danger/10 text-danger;
+}
+
+.badge-warning {
+  @apply badge bg-warning/10 text-warning;
+}
+
+/* Loading skeleton */
+.skeleton {
+  @apply bg-neutral-200 animate-pulse rounded;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
