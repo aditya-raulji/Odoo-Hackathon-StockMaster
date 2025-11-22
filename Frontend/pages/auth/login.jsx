@@ -22,8 +22,10 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await login(formData.email, formData.password);
-      router.push('/dashboard');
+      const response = await login(formData.email, formData.password);
+      console.log('Login successful, redirecting to dashboard...');
+      // Use replace to prevent back button going to login
+      router.replace('/dashboard');
     } catch (err) {
       setFormError(error || 'Login failed. Please try again.');
     } finally {
@@ -98,30 +100,34 @@ const Login = () => {
 
         {/* Demo Credentials */}
         <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-          <p className="text-xs font-semibold text-primary mb-3">DEMO CREDENTIALS</p>
+          <p className="text-xs font-semibold text-primary mb-3">TEST CREDENTIALS</p>
           <div className="space-y-2 text-xs">
             <div>
-              <p className="text-neutral-600">Warehouse Staff:</p>
-              <p className="font-mono text-neutral-700">guest@example.com / guest123</p>
-            </div>
-            <div>
               <p className="text-neutral-600">Inventory Manager:</p>
-              <p className="font-mono text-neutral-700">manager@example.com / manager123</p>
+              <p className="font-mono text-neutral-700">yasark8850@gmail.com / TestUser@123</p>
             </div>
             <div>
               <p className="text-neutral-600">Admin (StockMaster):</p>
-              <p className="font-mono text-neutral-700">admin@example.com / admin123</p>
+              <p className="font-mono text-neutral-700">stockmaster@example.com / StockMaster@123</p>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <p className="text-center text-neutral-600 mt-6">
-          Don't have an account?{' '}
-          <Link href="/auth/signup" className="text-primary font-medium hover:text-primary-dark">
-            Sign up
-          </Link>
-        </p>
+        <div className="text-center text-neutral-600 mt-6 space-y-2">
+          <p>
+            Don't have an account?{' '}
+            <Link href="/auth/signup" className="text-primary font-medium hover:text-primary-dark">
+              Sign up as Staff
+            </Link>
+          </p>
+          <p className="text-sm">
+            Are you a manager?{' '}
+            <Link href="/auth/manager-signup" className="text-secondary font-medium hover:text-secondary-dark">
+              Register here
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

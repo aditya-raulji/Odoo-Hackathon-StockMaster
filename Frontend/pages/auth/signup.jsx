@@ -10,7 +10,8 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState('');
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -30,11 +31,20 @@ const Signup = () => {
       return;
     }
 
+    if (!formData.firstName || !formData.lastName) {
+      setFormError('First name and last name are required');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await signup(formData.name, formData.email, formData.password);
-      router.push('/dashboard');
+      const response = await signup(formData.firstName, formData.lastName, formData.email, formData.password);
+      console.log('Signup successful, redirecting to OTP verification...');
+      // Store email in session for OTP verification
+      sessionStorage.setItem('signupEmail', formData.email);
+      // Use replace to prevent back button
+      router.replace('/auth/verify-signup-otp');
     } catch (err) {
       setFormError(error || 'Signup failed. Please try again.');
     } finally {
@@ -65,19 +75,36 @@ const Signup = () => {
             </div>
           )}
 
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">Full Name</label>
-            <div className="relative">
-              <User size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" />
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="John Doe"
-                className="input pl-10"
-                required
-              />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">First Name</label>
+              <div className="relative">
+                <User size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" />
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  placeholder="John"
+                  className="input pl-10"
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">Last Name</label>
+              <div className="relative">
+                <User size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" />
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  placeholder="Doe"
+                  className="input pl-10"
+                  required
+                />
+              </div>
             </div>
           </div>
 
@@ -135,12 +162,20 @@ const Signup = () => {
         </form>
 
         {/* Footer */}
-        <p className="text-center text-neutral-600 mt-6">
-          Already have an account?{' '}
-          <Link href="/auth/login" className="text-primary font-medium hover:text-primary-dark">
-            Sign in
-          </Link>
-        </p>
+        <div className="text-center text-neutral-600 mt-6 space-y-2">
+          <p>
+            Are you a manager?{' '}
+            <Link href="/auth/manager-signup" className="text-secondary font-medium hover:text-secondary-dark">
+              Register as manager
+            </Link>
+          </p>
+          <p>
+            Already have an account?{' '}
+            <Link href="/auth/login" className="text-primary font-medium hover:text-primary-dark">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
