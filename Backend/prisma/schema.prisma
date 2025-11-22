@@ -1,0 +1,290 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  firstName     String
+  lastName      String
+  passwordHash  String
+  role          String    @default("WAREHOUSE_STAFF")
+  isActive      Boolean   @default(true)
+  lastLogin     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  otpRequests   OtpRequest[]
+  sessions      Session[]
+  loginHistory  LoginHistory[]
+  movements     StockMovement[] @relation("createdBy")
+  counts        InventoryCount[] @relation("createdBy")
+  assignedCounts InventoryCount[] @relation("assignedTo")
+  auditLogs     AuditLog[]
+  files         File[]
+  notifications Notification[]
+
+  @@index([email])
+}
+
+model OtpRequest {
+  id        String    @id @default(cuid())
+  userId    String
+  otp       String
+  type      String
+  isUsed    Boolean   @default(false)
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Session {
+  id           String    @id @default(cuid())
+  userId       String
+  refreshToken String    @unique
+  expiresAt    DateTime
+  ipAddress    String?
+  createdAt    DateTime  @default(now())
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model LoginHistory {
+  id        String    @id @default(cuid())
+  userId    String
+  ipAddress String?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Product {
+  id              String    @id @default(cuid())
+  sku             String    @unique
+  name            String
+  description     String?
+  categoryId      String?
+  minStockLevel   Int       @default(10)
+  maxStockLevel   Int       @default(1000)
+  reorderPoint    Int       @default(50)
+  unitPrice       Float     @default(0)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  category        Category? @relation(fields: [categoryId], references: [id])
+  locations       ProductLocation[]
+  movementLines   StockMovementLine[]
+  countLines      InventoryCountLine[]
+
+  @@index([sku])
+  @@index([categoryId])
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+
+  products    Product[]
+}
+
+model ProductLocation {
+  id          String    @id @default(cuid())
+  productId   String
+  locationId  String
+  quantity    Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  location    Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, locationId])
+  @@index([productId])
+  @@index([locationId])
+}
+
+model Location {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  name        String
+  type        String
+  address     String?
+  capacity    Int?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  products    ProductLocation[]
+  fromMovements StockMovement[] @relation("fromLocation")
+  toMovements StockMovement[] @relation("toLocation")
+  counts      InventoryCount[]
+
+  @@index([code])
+}
+
+model StockMovement {
+  id              String    @id @default(cuid())
+  referenceNo     String    @unique
+  type            String
+  status          String    @default("DRAFT")
+  fromLocationId  String?
+  toLocationId    String?
+  supplierId      String?
+  productId       String
+  createdById     String
+  notes           String?
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  fromLocation    Location? @relation("fromLocation", fields: [fromLocationId], references: [id])
+  toLocation      Location? @relation("toLocation", fields: [toLocationId], references: [id])
+  supplier        Supplier? @relation(fields: [supplierId], references: [id])
+  createdBy       User      @relation("createdBy", fields: [createdById], references: [id])
+  lines           StockMovementLine[]
+
+  @@index([status])
+  @@index([createdById])
+}
+
+model StockMovementLine {
+  id              String    @id @default(cuid())
+  movementId      String
+  productId       String
+  quantity        Int
+  pickedQuantity  Int?
+  batchId         String?
+  lineStatus      String    @default("PENDING")
+  createdAt       DateTime  @default(now())
+
+  movement        StockMovement @relation(fields: [movementId], references: [id], onDelete: Cascade)
+  product         Product   @relation(fields: [productId], references: [id])
+
+  @@index([movementId])
+  @@index([productId])
+}
+
+model InventoryCount {
+  id              String    @id @default(cuid())
+  referenceNo     String    @unique
+  locationId      String
+  status          String    @default("DRAFT")
+  assignedToId    String?
+  createdById     String
+  notes           String?
+  totalVariance   Int?
+  reconciledAt    DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  location        Location  @relation(fields: [locationId], references: [id])
+  assignedTo      User?     @relation("assignedTo", fields: [assignedToId], references: [id])
+  createdBy       User      @relation("createdBy", fields: [createdById], references: [id])
+  lines           InventoryCountLine[]
+
+  @@index([locationId])
+  @@index([createdById])
+}
+
+model InventoryCountLine {
+  id              String    @id @default(cuid())
+  countId         String
+  productId       String
+  expectedQuantity Int
+  countedQuantity Int?
+  variance        Int?
+  status          String    @default("PENDING")
+  createdAt       DateTime  @default(now())
+
+  count           InventoryCount @relation(fields: [countId], references: [id], onDelete: Cascade)
+  product         Product   @relation(fields: [productId], references: [id])
+
+  @@index([countId])
+  @@index([productId])
+}
+
+model Supplier {
+  id          String    @id @default(cuid())
+  name        String
+  email       String?
+  phone       String?
+  address     String?
+  city        String?
+  state       String?
+  country     String?
+  zipCode     String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  movements   StockMovement[]
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String
+  type        String
+  title       String
+  message     String
+  data        Json?
+  isRead      Boolean   @default(false)
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  userId      String
+  entity      String
+  entityId    String
+  action      String
+  before      Json?
+  after       Json?
+  ipAddress   String?
+  createdAt   DateTime  @default(now())
+
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@index([entity, entityId])
+  @@index([userId])
+}
+
+model File {
+  id            String    @id @default(cuid())
+  fileName      String
+  mimeType      String
+  size          Int
+  url           String
+  uploadedById  String
+  createdAt     DateTime  @default(now())
+
+  uploadedBy    User      @relation(fields: [uploadedById], references: [id])
+
+  @@index([uploadedById])
+}
