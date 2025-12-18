@@ -2,6 +2,9 @@
 
 A modern, modular Inventory Management System frontend built with **Next.js 14**, **React 18**, and **Tailwind CSS** featuring a "StockMaster" UI/UX design style with soft rounded cards, glass gradients, and smooth micro-interactions.
 
+[![▶ Live Demo Video](https://img.shields.io/badge/▶%20Live%20Demo%20Video-StockMaster-6C5CE7?style=for-the-badge)](https://drive.google.com/file/d/1JDQ73HCoOAbhQ5GqBf0eOgrfIYaQ0Sxo/view?usp=sharing)
+
+
 ## 🎯 Features
 
 ### Core Functionality
